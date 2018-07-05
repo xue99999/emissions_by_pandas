@@ -1,15 +1,24 @@
 import pandas as pd
 
-def co2_gdp_plot():
+def data_clean():
     data = pd.read_excel('ClimateChange.xlsx', sheetname='Data')
-    data = data.set_index('Country code')
-    data = data[data['Series code'] == 'EN.ATM.CO2E.KT'].set_index('Country code')
-    data = data[data['Series code'] == 'NY.GDP.MKTP.CD'].set_index('Country code')
+
+    data.set_index('Country code')
+
     data = data.iloc[:, 5:].replace({'..': pd.np.nan})
     data = data.fillna(method='ffill', axis=1).fillna(method='bfill', axis=1)
 
-    print(data.head())
+    data_kt = data[data['Series code'] == 'EN.ATM.CO2E.KT']
+    data_cd = data[data['Series code'] == 'NY.GDP.MKTP.CD']
+
+
+    data_kt['CO2-SUM'] = data_kt.sum(axis=1)
+    data_cd['GDP-SUM'] = data_cd.sum(axis=1)
+
+    df = pd.concat([data_kt['CO2-SUM'] , data_cd]['GDP-SUM'] , axis=1)
+
+    print(df.head())
 
 
 if __name__ == '__main__':
-    co2_gdp_plot()
+    data_clean()
